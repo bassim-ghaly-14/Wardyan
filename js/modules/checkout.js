@@ -1,6 +1,6 @@
 import { getState, clearCart } from "../core/store.js";
 import { validatePhone } from "../core/utils.js";
-import { applyCoupon, calculateDiscount } from "./coupons.js";
+import { calculateDiscount } from "./coupons.js";
 import { showToast } from "../core/toast.js";
 import { createElement } from "../core/utils.js";
 
@@ -14,25 +14,40 @@ export function initCheckout() {
 export function openCheckout(items = null) {
   const state = getState();
   const cartItems = items || state.cart;
+
   if (!cartItems.length) return;
 
   modal.dataset.items = JSON.stringify(cartItems);
-  modal.dataset.coupon = state.coupon ? JSON.stringify(state.coupon) : "";
+  modal.dataset.coupon = state.coupon
+    ? JSON.stringify(state.coupon)
+    : "";
 
   updateCheckoutUI(cartItems, state.coupon);
   modal.classList.add("active");
 }
 
 function updateCheckoutUI(items, coupon = null) {
-  const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0);
-  const discount = coupon ? calculateDiscount(subtotal, coupon) : 0;
+  const subtotal = items.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
+
+  const discount = coupon
+    ? calculateDiscount(subtotal, coupon)
+    : 0;
+
   const total = subtotal - discount;
 
   modal.querySelector(".checkout-summary").innerHTML = `
-    <p>Items: ${items.reduce((s, i) => s + i.quantity, 0)}</p>
+    <p>Items: ${items.reduce((sum, item) => sum + item.quantity, 0)}</p>
 
     <input id="name" placeholder="Full Name" maxlength="35">
-    <input id="phone" placeholder="01X XXXX XXXX" inputmode="numeric" maxlength="11">
+    <input
+      id="phone"
+      placeholder="01X XXXX XXXX"
+      inputmode="numeric"
+      maxlength="11"
+    >
     <input id="address" placeholder="Address" maxlength="60">
 
     <div class="checkout-summary-total">
@@ -50,34 +65,67 @@ function validateForm() {
 
   const errors = [];
 
-  if (!name || name.length < 3) errors.push("Invalid name");
-  if (!validatePhone(phone)) errors.push("Invalid phone");
-  if (!address || address.length < 10) errors.push("Invalid address");
+  if (!name || name.length < 3) {
+    errors.push("Invalid name");
+  }
 
-  return { valid: !errors.length, errors };
+  if (!validatePhone(phone)) {
+    errors.push("Invalid phone");
+  }
+
+  if (!address || address.length < 10) {
+    errors.push("Invalid address");
+  }
+
+  return {
+    valid: !errors.length,
+    errors
+  };
 }
 
 function placeOrder() {
   const { valid, errors } = validateForm();
+
   if (!valid) {
-    errors.forEach(e => showToast(e, "error"));
+    errors.forEach(error => showToast(error, "error"));
     return;
   }
 
   const items = JSON.parse(modal.dataset.items);
 
-  const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0);
-  const coupon = modal.dataset.coupon ? JSON.parse(modal.dataset.coupon) : null;
-  const discount = coupon ? calculateDiscount(subtotal, coupon) : 0;
-  const total = subtotal - discount;
+  const subtotal = items.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
 
-  const orderId = "ORD-" + Math.random().toString(36).slice(2, 8).toUpperCase();
+  const coupon = modal.dataset.coupon
+    ? JSON.parse(modal.dataset.coupon)
+    : null;
+
+  const discount = coupon
+    ? calculateDiscount(subtotal, coupon)
+    : 0;
+
+  const total = subtotal - discount;
+  const orderId = generateOrderId();
 
   clearCart();
   modal.classList.remove("active");
 
   showToast("Order placed successfully", "success");
   showSuccessModal(orderId, total);
+}
+
+function generateOrderId() {
+  const randomValues = new Uint32Array(1);
+  crypto.getRandomValues(randomValues);
+
+  const randomPart = randomValues[0]
+    .toString(36)
+    .slice(0, 8)
+    .toUpperCase();
+
+  return `ORD-${randomPart}`;
 }
 
 function showSuccessModal(id, total) {
@@ -99,8 +147,7 @@ function showSuccessModal(id, total) {
 
   document.body.appendChild(modalEl);
 
-  // FIX: delegated event (no direct binding)
-  modalEl.addEventListener("click", (e) => {
+  modalEl.addEventListener("click", e => {
     if (e.target.closest('[data-action="continue-shopping"]')) {
       modalEl.remove();
     }
@@ -108,17 +155,28 @@ function showSuccessModal(id, total) {
 }
 
 function createCheckoutModal() {
-  const div = createElement("div", "modal checkout-modal", `
+  const div = createElement(
+    "div",
+    "modal checkout-modal",
+    `
     <div class="modal-content">
       <h2>Checkout</h2>
       <div class="checkout-summary"></div>
 
-      <button class="btn btn-primary place-order">Place Order</button>
-      <button class="btn btn-outline close-modal">Cancel</button>
-    </div>
-  `);
+      <button class="btn btn-primary place-order">
+        Place Order
+      </button>
 
-  div.querySelector(".close-modal").onclick = () => div.classList.remove("active");
+      <button class="btn btn-outline close-modal">
+        Cancel
+      </button>
+    </div>
+  `
+  );
+
+  div.querySelector(".close-modal").onclick = () => {
+    div.classList.remove("active");
+  };
 
   return div;
 }

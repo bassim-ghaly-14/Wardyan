@@ -2,7 +2,7 @@ import { getState, setTheme } from "../core/store.js";
 
 export function initTheme() {
   const theme = getState().theme;
-  document.documentElement.setAttribute("data-theme", theme);
+  document.documentElement.dataset.theme = theme;
   updateIcon(theme);
 }
 
@@ -12,7 +12,7 @@ export function bindThemeToggle(btn) {
     const next = current === "light" ? "dark" : "light";
 
     setTheme(next);
-    document.documentElement.setAttribute("data-theme", next);
+    document.documentElement.dataset.theme = next;
     updateIcon(next);
   });
 }
