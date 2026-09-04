@@ -31,9 +31,9 @@ function updateCheckoutUI(items, coupon = null) {
   modal.querySelector(".checkout-summary").innerHTML = `
     <p>Items: ${items.reduce((s, i) => s + i.quantity, 0)}</p>
 
-    <input id="name" placeholder="Full Name">
-    <input id="phone" placeholder="Phone Number">
-    <input id="address" placeholder="Address">
+    <input id="name" placeholder="Full Name" maxlength="35">
+    <input id="phone" placeholder="01X XXXX XXXX" inputmode="numeric" maxlength="11">
+    <input id="address" placeholder="Address" maxlength="60">
 
     <div class="checkout-summary-total">
       Total: ${total} EGP
