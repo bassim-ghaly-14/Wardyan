@@ -11,8 +11,8 @@ WARDYAN is a single-page storefront for a flower delivery business in Egypt. Vis
 All features below are implemented in the current code.
 
 - **Product browsing** — product grid rendered from `js/products.js` (4 hardcoded bouquets, images hosted on Cloudinary).
-- **Product cards** — image with consistent 1:1 aspect ratio, name, description, full-width price row, and stacked full-width *Add to Cart* / *Buy Now* buttons. Clicking the card itself opens Product Details.
-- **Product details** — a modal showing the product image, name, description, price, and full-width *Add to Cart* / *Buy Now* buttons (reusing the existing cart and checkout logic). Closable via the close button, backdrop click, or Escape, with focus restored to the card on close.
+- **Product cards** — image with consistent 1:1 aspect ratio, name, description, full-width price row, and stacked full-width _Add to Cart_ / _Buy Now_ buttons. Clicking the card itself opens Product Details.
+- **Product details** — a modal showing the product image, name, description, price, and full-width _Add to Cart_ / _Buy Now_ buttons (reusing the existing cart and checkout logic). Closable via the close button, backdrop click, or Escape, with focus restored to the card on close.
 - **Cart** — slide-in drawer with quantity increment/decrement (quantity ≤ 0 removes the item), item removal, clear cart, empty state with a "Go Shopping" shortcut, and a live cart-count badge in the header.
 - **Coupons** — hardcoded codes `SAVE10` (10% off) and `WELCOME50` (50 EGP off), applied in the cart with success/error toast feedback.
 - **Checkout (simulated)** — modal capturing full name, Egyptian mobile number, and address with client-side validation; generates a random order ID (`ORD-XXXXXX`) and shows a confirmation modal. No real payment processing and orders are not persisted.
@@ -24,15 +24,15 @@ Not implemented: search, filtering, sorting, wishlist, authentication (see [Limi
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Structure | HTML5 (single page, semantic sections) |
-| Styling | Hand-written CSS with custom properties (no preprocessor, no framework) |
-| Logic | Vanilla JavaScript, native ES modules (`<script type="module">`) |
-| Icons | Font Awesome 6.5.1 (CDN) |
-| Images | Cloudinary-hosted URLs |
-| Persistence | `localStorage` (key `WARDYAN_state`) |
-| Build tooling | None |
+| Layer         | Technology                                                              |
+| ------------- | ----------------------------------------------------------------------- |
+| Structure     | HTML5 (single page, semantic sections)                                  |
+| Styling       | Hand-written CSS with custom properties (no preprocessor, no framework) |
+| Logic         | Vanilla JavaScript, native ES modules (`<script type="module">`)        |
+| Icons         | Font Awesome 6.5.1 (CDN)                                                |
+| Images        | Cloudinary-hosted URLs                                                  |
+| Persistence   | `localStorage` (key `WARDYAN_state`)                                    |
+| Build tooling | None                                                                    |
 
 ## Architecture
 
@@ -54,20 +54,20 @@ index.html
 
 ### Module reference
 
-| Module | Responsibility | Key exports |
-|---|---|---|
-| `js/app.js` | Entry point; initializes theme, product details, products, drawer, cart, checkout | — |
-| `js/main.js` | Product details modal: renders the selected product and routes its Add to Cart / Buy Now actions to the existing store and checkout | `initProductDetails`, `openProductDetails`, `closeProductDetails` |
-| `js/core/store.js` | Central state, pub/sub, localStorage persistence, cart mutations | `addToCart`, `updateQty`, `removeItem`, `clearCart`, `getState`, `subscribe`, `setCoupon`, `setTheme` |
-| `js/modules/product-ui.js` | Renders the product grid; delegates add-to-cart / buy-now clicks | `renderProducts` |
-| `js/modules/cart.js` | Renders the cart drawer, summary, coupon UI; binds cart events | `renderCart`, `bindCartEvents` |
-| `js/modules/coupons.js` | Hardcoded coupon catalog and discount calculation | `applyCoupon`, `calculateDiscount` |
-| `js/modules/checkout.js` | Checkout modal, form validation, simulated order placement | `initCheckout`, `openCheckout` |
-| `js/modules/theme.js` | Applies and toggles light/dark theme | `initTheme`, `bindThemeToggle` |
-| `js/modules/ui.js` | Cart drawer open/close and overlay with scroll lock | `bindDrawer` |
-| `js/core/toast.js` | Toast notifications | `showToast` |
-| `js/core/utils.js` | Price formatting, element factory, email/phone validation | `formatPrice`, `createElement`, `validateEmail`, `validatePhone` |
-| `js/products.js` | Static product data and lookup | `products`, `getProductById` |
+| Module                     | Responsibility                                                                                                                      | Key exports                                                                                           |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `js/app.js`                | Entry point; initializes theme, product details, products, drawer, cart, checkout                                                   | —                                                                                                     |
+| `js/main.js`               | Product details modal: renders the selected product and routes its Add to Cart / Buy Now actions to the existing store and checkout | `initProductDetails`, `openProductDetails`, `closeProductDetails`                                     |
+| `js/core/store.js`         | Central state, pub/sub, localStorage persistence, cart mutations                                                                    | `addToCart`, `updateQty`, `removeItem`, `clearCart`, `getState`, `subscribe`, `setCoupon`, `setTheme` |
+| `js/modules/product-ui.js` | Renders the product grid; delegates add-to-cart / buy-now clicks                                                                    | `renderProducts`                                                                                      |
+| `js/modules/cart.js`       | Renders the cart drawer, summary, coupon UI; binds cart events                                                                      | `renderCart`, `bindCartEvents`                                                                        |
+| `js/modules/coupons.js`    | Hardcoded coupon catalog and discount calculation                                                                                   | `applyCoupon`, `calculateDiscount`                                                                    |
+| `js/modules/checkout.js`   | Checkout modal, form validation, simulated order placement                                                                          | `initCheckout`, `openCheckout`                                                                        |
+| `js/modules/theme.js`      | Applies and toggles light/dark theme                                                                                                | `initTheme`, `bindThemeToggle`                                                                        |
+| `js/modules/ui.js`         | Cart drawer open/close and overlay with scroll lock                                                                                 | `bindDrawer`                                                                                          |
+| `js/core/toast.js`         | Toast notifications                                                                                                                 | `showToast`                                                                                           |
+| `js/core/utils.js`         | Price formatting, element factory, email/phone validation                                                                           | `formatPrice`, `createElement`, `validateEmail`, `validatePhone`                                      |
+| `js/products.js`           | Static product data and lookup                                                                                                      | `products`, `getProductById`                                                                          |
 
 ## Project Structure
 
@@ -101,7 +101,7 @@ Wardyan/
 
 1. Clicking anywhere on a product card (except its action buttons) calls `openProductDetails(card.dataset.id)` in `main.js`.
 2. The module renders the product into a modal built with the same dynamic-modal pattern as checkout (`role="dialog"`, `aria-modal`), and locks page scroll while open.
-3. *Add to Cart* in the modal calls the same `addToCart(product)` store mutation; *Buy Now* calls the same `openCheckout([{ ...product, quantity: 1 }])` used by the cards. No duplicated cart or checkout logic.
+3. _Add to Cart_ in the modal calls the same `addToCart(product)` store mutation; _Buy Now_ calls the same `openCheckout([{ ...product, quantity: 1 }])` used by the cards. No duplicated cart or checkout logic.
 4. The modal closes via its close button, a backdrop click, or the Escape key, restoring focus to the previously focused element.
 
 ### Cart flow
@@ -127,14 +127,14 @@ Wardyan/
 
 Defined entirely through CSS custom properties on `:root`:
 
-| Token | Light | Dark |
-|---|---|---|
-| `--primary` | `#ff4f9a` (pink) | same |
-| `--primary-dark` | `#7a0f4a` | same |
-| `--bg-primary` | `#ffffff` | `#0f0f0f` |
-| `--bg-secondary` | `#f8f9fa` | `#1a1a1a` |
+| Token                                 | Light              | Dark                  |
+| ------------------------------------- | ------------------ | --------------------- |
+| `--primary`                           | `#ff4f9a` (pink)   | same                  |
+| `--primary-dark`                      | `#7a0f4a`          | same                  |
+| `--bg-primary`                        | `#ffffff`          | `#0f0f0f`             |
+| `--bg-secondary`                      | `#f8f9fa`          | `#1a1a1a`             |
 | `--text-primary` / `--text-secondary` | `#1a1a1a` / `#666` | `#ffffff` / `#a3a3a3` |
-| `--border` | `#e0e0e0` | `#2a2a2a` |
+| `--border`                            | `#e0e0e0`          | `#2a2a2a`             |
 
 - Typography: system font stack (`-apple-system`, `Segoe UI`, Roboto, …), sizes 11–56px with `clamp()` for headings.
 - Components share a consistent radius scale (6–20px), a two-level shadow system (`--shadow`, `--shadow-lg`), and `translateY` hover elevation on cards.
@@ -207,4 +207,4 @@ No license file is present in the repository.
 
 ## Repository
 
-https://github.com/bassim-ghaly-14/Warden
+https://github.com/bassim-ghaly-14/Wardyan
