@@ -11,7 +11,8 @@ WARDYAN is a single-page storefront for a flower delivery business in Egypt. Vis
 All features below are implemented in the current code.
 
 - **Product browsing** — product grid rendered from `js/products.js` (4 hardcoded bouquets, images hosted on Cloudinary).
-- **Product cards** — image with consistent 1:1 aspect ratio, name, description, full-width price row, and stacked full-width *Add to Cart* / *Buy Now* buttons.
+- **Product cards** — image with consistent 1:1 aspect ratio, name, description, full-width price row, and stacked full-width *Add to Cart* / *Buy Now* buttons. Clicking the card itself opens Product Details.
+- **Product details** — a modal showing the product image, name, description, price, and full-width *Add to Cart* / *Buy Now* buttons (reusing the existing cart and checkout logic). Closable via the close button, backdrop click, or Escape, with focus restored to the card on close.
 - **Cart** — slide-in drawer with quantity increment/decrement (quantity ≤ 0 removes the item), item removal, clear cart, empty state with a "Go Shopping" shortcut, and a live cart-count badge in the header.
 - **Coupons** — hardcoded codes `SAVE10` (10% off) and `WELCOME50` (50 EGP off), applied in the cart with success/error toast feedback.
 - **Checkout (simulated)** — modal capturing full name, Egyptian mobile number, and address with client-side validation; generates a random order ID (`ORD-XXXXXX`) and shows a confirmation modal. No real payment processing and orders are not persisted.
@@ -19,7 +20,7 @@ All features below are implemented in the current code.
 - **Toast notifications** — success/error feedback for coupons, clearing the cart, validation errors, and order confirmation.
 - **Responsive layout** — breakpoints at 900px, 768px, 600px, and 480px; the cart drawer becomes full-width on small screens.
 
-Not implemented: search, filtering, sorting, wishlist, authentication, product detail page (see [Limitations](#limitations)).
+Not implemented: search, filtering, sorting, wishlist, authentication (see [Limitations](#limitations)).
 
 ## Tech Stack
 
@@ -55,7 +56,8 @@ index.html
 
 | Module | Responsibility | Key exports |
 |---|---|---|
-| `js/app.js` | Entry point; initializes theme, products, drawer, cart, checkout | — |
+| `js/app.js` | Entry point; initializes theme, product details, products, drawer, cart, checkout | — |
+| `js/main.js` | Product details modal: renders the selected product and routes its Add to Cart / Buy Now actions to the existing store and checkout | `initProductDetails`, `openProductDetails`, `closeProductDetails` |
 | `js/core/store.js` | Central state, pub/sub, localStorage persistence, cart mutations | `addToCart`, `updateQty`, `removeItem`, `clearCart`, `getState`, `subscribe`, `setCoupon`, `setTheme` |
 | `js/modules/product-ui.js` | Renders the product grid; delegates add-to-cart / buy-now clicks | `renderProducts` |
 | `js/modules/cart.js` | Renders the cart drawer, summary, coupon UI; binds cart events | `renderCart`, `bindCartEvents` |
@@ -66,7 +68,6 @@ index.html
 | `js/core/toast.js` | Toast notifications | `showToast` |
 | `js/core/utils.js` | Price formatting, element factory, email/phone validation | `formatPrice`, `createElement`, `validateEmail`, `validatePhone` |
 | `js/products.js` | Static product data and lookup | `products`, `getProductById` |
-| `js/main.js` | ⚠️ Orphaned module for a product-detail page; not loaded by `index.html`, and its `#productDetail` target does not exist | — |
 
 ## Project Structure
 
@@ -77,7 +78,7 @@ Wardyan/
 │   └── master.css          # All styles: tokens, layout, components, themes, responsive rules
 ├── js/
 │   ├── app.js              # Application entry point
-│   ├── main.js             # Unused product-detail entry (orphaned)
+│   ├── main.js             # Product details modal (integrated via app.js)
 │   ├── products.js         # Static product data
 │   ├── core/
 │   │   ├── store.js        # State + pub/sub + localStorage
@@ -95,6 +96,13 @@ Wardyan/
 ```
 
 ## How It Works
+
+### Product details flow
+
+1. Clicking anywhere on a product card (except its action buttons) calls `openProductDetails(card.dataset.id)` in `main.js`.
+2. The module renders the product into a modal built with the same dynamic-modal pattern as checkout (`role="dialog"`, `aria-modal`), and locks page scroll while open.
+3. *Add to Cart* in the modal calls the same `addToCart(product)` store mutation; *Buy Now* calls the same `openCheckout([{ ...product, quantity: 1 }])` used by the cards. No duplicated cart or checkout logic.
+4. The modal closes via its close button, a backdrop click, or the Escape key, restoring focus to the previously focused element.
 
 ### Cart flow
 
@@ -169,7 +177,8 @@ Partially implemented:
 - Semantic elements: `<header>`, `<main>`, `<footer>`, `<article>` product cards, and real `<button>` elements throughout.
 - Social links carry `aria-label`s; product images have meaningful `alt` text.
 - `.btn:focus-visible` shows a clear 2px outline; inputs have visible focus styles.
-- Gaps: icon-only header buttons (cart, theme, close cart) lack `aria-label`s; the cart drawer and modals lack ARIA roles (`role="dialog"`, `aria-modal`) and focus trapping; checkout inputs rely on placeholders instead of `<label>` elements; there is no `prefers-reduced-motion` handling.
+- Product Details modal uses dialog semantics (`role="dialog"`, `aria-modal="true"`, labeled close button), closes on Escape, and restores focus on close. Opening is click-only, though — product cards are not keyboard-focusable triggers.
+- Gaps: icon-only header buttons (cart, theme, close cart) lack `aria-label`s; the cart drawer and checkout modal lack ARIA roles and focus trapping; checkout inputs rely on placeholders instead of `<label>` elements; there is no `prefers-reduced-motion` handling.
 
 ## Performance
 
@@ -188,8 +197,7 @@ Partially implemented:
 
 - **Simulated checkout** — orders are confirmed client-side with a random ID; there is no backend, payment gateway, or order persistence.
 - **Static product data** — the catalog is a hardcoded array; there is no API or admin interface.
-- **Orphaned code** — `js/main.js` (product-detail page entry) and `core/events.js` are not wired into the app.
-- **Single page** — no routing, product detail view, search, filtering, or wishlist.
+- **Single page** — no routing; the product detail view is a modal rather than a dedicated URL/page.
 - **Coupon logic duplication** — discount calculation exists in both `coupons.js` (used everywhere) and `core/store.js` (whose percentage handling is inconsistent with the coupon catalog); only the `coupons.js` path is actually exercised.
 - **No build system, linting, or automated tests.**
 

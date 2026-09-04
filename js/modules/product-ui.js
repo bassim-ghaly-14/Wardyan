@@ -1,6 +1,7 @@
 import { products } from "../products.js";
 import { addToCart } from "../core/store.js";
 import { openCheckout } from "./checkout.js";
+import { openProductDetails } from "../main.js";
 import { formatPrice } from "../core/utils.js";
 
 export function renderProducts() {
@@ -8,7 +9,7 @@ export function renderProducts() {
   if (!container) return;
   
   container.innerHTML = products.map(p => `
-    <article class="product-card">
+    <article class="product-card" data-id="${p.id}">
       <div class="product-card__media">
         <img src="${p.image}" alt="${p.name}" loading="lazy">
       </div>
@@ -27,11 +28,20 @@ export function renderProducts() {
   `).join("");
 
   container.addEventListener("click", e => {
-    const id = e.target.dataset.id;
-    const product = products.find(p => p.id === id);
-    if (!product) return;
-    
-    if (e.target.classList.contains("add-cart")) addToCart(product);
-    if (e.target.classList.contains("buy-now")) openCheckout([{ ...product, quantity: 1 }]);
+    const card = e.target.closest(".product-card");
+    if (!card) return;
+
+    // Action buttons keep their own behavior; the card itself opens details
+    const actionBtn = e.target.closest(".product-card__actions [data-id]");
+    if (actionBtn) {
+      const product = products.find(p => p.id === actionBtn.dataset.id);
+      if (!product) return;
+
+      if (e.target.closest(".add-cart")) addToCart(product);
+      if (e.target.closest(".buy-now")) openCheckout([{ ...product, quantity: 1 }]);
+      return;
+    }
+
+    openProductDetails(card.dataset.id);
   });
 }
