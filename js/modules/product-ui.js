@@ -1,26 +1,29 @@
 import { products } from "../products.js";
 import { addToCart } from "../core/store.js";
 import { openCheckout } from "./checkout.js";
+import { formatPrice } from "../core/utils.js";
 
 export function renderProducts() {
   const container = document.querySelector(".products-grid");
   if (!container) return;
   
   container.innerHTML = products.map(p => `
-    <div class="product-card">
-      <img src="${p.image}" alt="${p.name}">
+    <article class="product-card">
+      <div class="product-card__media">
+        <img src="${p.image}" alt="${p.name}" loading="lazy">
+      </div>
       <div class="product-info">
-        <h3>${p.name}</h3>
-        <p>${p.description}</p>
-        <div class="product-footer">
-          <span class="price">${p.price} EGP</span>
-          <div class="product-actions">
-            <button class="btn btn-outline add-cart" data-id="${p.id}">Add to Cart</button>
-            <button class="btn btn-primary buy-now" data-id="${p.id}">Buy Now</button>
-          </div>
+        <h3 class="product-card__name">${p.name}</h3>
+        <p class="product-card__desc">${p.description}</p>
+        <div class="product-card__price">
+          <span class="price">${formatPrice(p.price)}</span>
+        </div>
+        <div class="product-card__actions">
+          <button class="btn btn-outline add-cart" data-id="${p.id}">Add to Cart</button>
+          <button class="btn btn-primary buy-now" data-id="${p.id}">Buy Now</button>
         </div>
       </div>
-    </div>
+    </article>
   `).join("");
 
   container.addEventListener("click", e => {
