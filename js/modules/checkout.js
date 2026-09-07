@@ -1,8 +1,7 @@
 import { getState, clearCart } from "../core/store.js";
-import { validatePhone } from "../core/utils.js";
+import { validatePhone, createElement } from "../core/utils.js";
 import { calculateDiscount } from "./coupons.js";
 import { showToast } from "../core/toast.js";
-import { createElement } from "../core/utils.js";
 
 let modal;
 

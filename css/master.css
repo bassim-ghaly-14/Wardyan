@@ -383,6 +383,7 @@ a {
 
 .cart-item {
   display: flex;
+  align-items: flex-start;
   gap: 12px;
   margin-bottom: 16px;
   padding-bottom: 16px;
@@ -1074,14 +1075,6 @@ a {
 }
 
 /* Adjust cart item layout for delete button */
-.cart-item {
-  align-items: flex-start;
-}
-
-.cart-item-info {
-  flex: 1;
-}
-
 .cart-item .remove-btn {
   margin-left: auto;
   flex-shrink: 0;

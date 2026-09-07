@@ -21,5 +21,5 @@ export function validateEmail(email) {
 }
 
 export function validatePhone(phone) {
-  return /^01[0-25][0-9]{8}$/.test(phone);
+  return /^01[0-25]\d{8}$/.test(phone);
 }
